@@ -1,75 +1,102 @@
+// Wait for the DOM to fully load before executing the function
+document.addEventListener("DOMContentLoaded", function () {
+    // Get the registration form element
+    const registrationForm = document.getElementById("registrationForm");
+    // Get the table body element where entries will be displayed
+    const entriesTableBody = document.getElementById("entriesTableBody");
+    // Get the element for displaying date of birth errors
+    const dateOfBirthError = document.getElementById("dobError");
 
-        // Get form and table body elements
-        const formElement = document.getElementById('userForm');
-        const entriesTableBody = document.getElementById('entriesTable').getElementsByTagName('tbody')[0];
+    // Function to calculate the age from the date of birth
+    function calculateAge(dateOfBirth) {
+        // Create a Date object from the date of birth input
+        const dobDate = new Date(dateOfBirth);
+        // Get the current date
+        const today = new Date();
+        // Calculate initial age
+        let age = today.getFullYear() - dobDate.getFullYear();
+        // Calculate the difference in months
+        const ageMonthDifference = today.getMonth() - dobDate.getMonth();
 
-        // Function to calculate the user's age based on the date of birth input
-        function calculateUserAge(dob) {
-            const today = new Date(); // Get today's date
-            const birthDate = new Date(dob); // Convert DOB to date object
-            let age = today.getFullYear() - birthDate.getFullYear(); // Calculate year difference
-            const monthDiff = today.getMonth() - birthDate.getMonth(); // Calculate month difference
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--; // Adjust if birth month or day hasn't occurred yet this year
-            }
-            return age; // Return calculated age
+        // Adjust age if the current month is before the birth month, or if it's the same month but the current day is earlier
+        if (ageMonthDifference < 0 || (ageMonthDifference === 0 && today.getDate() < dobDate.getDate())) {
+            age--; // Decrease age by 1 if necessary
         }
+        return age; // Return the calculated age
+    }
 
-        // Function to add a new entry to the table
-        function addRowToTable(name, email, password, dob, termsAccepted) {
-            const newRow = entriesTableBody.insertRow(); // Create a new row in the table
-            newRow.insertCell(0).innerText = name; // Insert name in the first column
-            newRow.insertCell(1).innerText = email; // Insert email in the second column
-            newRow.insertCell(2).innerText = password; // Insert password in the third column
-            newRow.insertCell(3).innerText = dob; // Insert date of birth in the fourth column
-            newRow.insertCell(4).innerText = termsAccepted ? 'true' : 'false'; // Insert 'true' or 'false' based on checkbox status
-        }
+    // Function to validate the date of birth
+    function validateDateOfBirth(dateOfBirth) {
+        const age = calculateAge(dateOfBirth); // Get the age from the date of birth
+        // Return true if age is between 18 and 55 (inclusive), false otherwise
+        return age >= 18 && age <= 55;
+    }
 
-        // Load saved entries from localStorage when the page is reloaded
-        function loadEntriesFromStorage() {
-            const storedKeys = Object.keys(localStorage); // Get all keys from localStorage
-            if (storedKeys.length === 0) {
-                return; // If localStorage is empty, don't load any entries
-            }
-            for (const key of storedKeys) {
-                const entryData = JSON.parse(localStorage.getItem(key)); // Parse stored entry data
-                if (entryData) {
-                    
-                    addRowToTable(entryData.name, entryData.email, entryData.password, entryData.dob, entryData.terms);
-                }
-            }
-        }
-
-        // Event listener for form submission
-        formElement.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission behavior (page refresh)
-
-            // Get values from form fields
-            const userName = document.getElementById('username').value;
-            const userEmail = document.getElementById('useremail').value;
-            const userPassword = document.getElementById('userpassword').value;
-            const userDob = document.getElementById('userdob').value;
-            const termsAccepted = document.getElementById('termsCheckbox').checked; // Check if terms are accepted
-
-            const userAge = calculateUserAge(userDob); 
-
-            // Validate age to be between 18 and 55
-            if (userAge < 18 || userAge > 55) {
-                alert('Age must be between 18 and 55 years.');
-                return; 
-            }
-
-            // Save form data to localStorage with email as key
-            const userData = { name: userName, email: userEmail, password: userPassword, dob: userDob, terms: termsAccepted };
-            localStorage.setItem(userEmail, JSON.stringify(userData));
-
-           
-            addRowToTable(userName, userEmail, userPassword, userDob, termsAccepted);
-
-            // Reset the form after submission
-            formElement.reset();
+    // Function to load entries from localStorage
+    function loadEntries() {
+        // Get the entries from localStorage or set to an empty array if none exist
+        const entries = JSON.parse(localStorage.getItem("entries")) || [];
+        // Iterate through each entry to create a new row in the table
+        entries.forEach(entry => {
+            const newRow = document.createElement("tr"); // Create a new table row
+            // Set the inner HTML of the new row with entry details
+            newRow.innerHTML = `
+                <td>${entry.name}</td>
+                <td>${entry.email}</td>
+                <td>${entry.password}</td>
+                <td>${entry.dob}</td>
+                <td>${entry.terms ? 'true' : 'false'}</td>
+            `;
+            entriesTableBody.appendChild(newRow); // Append the new row to the table body
         });
+    }
 
-        // Load stored data from localStorage when the page is loaded
-        window.addEventListener('load', loadEntriesFromStorage);
-    
+    // Function to save an entry to localStorage
+    function saveEntry(entry) {
+        // Get the existing entries from localStorage or set to an empty array if none exist
+        const entries = JSON.parse(localStorage.getItem("entries")) || [];
+        entries.push(entry); // Add the new entry to the existing entries
+        localStorage.setItem("entries", JSON.stringify(entries)); // Save the updated entries back to localStorage
+    }
+
+    // Add event listener to handle form submission
+    registrationForm.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent the form from refreshing the page
+
+        // Get form values from input fields
+        const userName = document.getElementById("name").value;
+        const userEmail = document.getElementById("email").value;
+        const userPassword = document.getElementById("password").value;
+        const userDOB = document.getElementById("dob").value;
+        const userTerms = document.getElementById("terms").checked;
+
+        // Validate the date of birth; if invalid, show error message and stop submission
+        if (!validateDateOfBirth(userDOB)) {
+            dateOfBirthError.classList.remove("hidden"); // Show the error message
+            return; // Stop form submission if the age is not valid
+        } else {
+            dateOfBirthError.classList.add("hidden"); // Hide the error message if valid
+        }
+
+        // Create a new row for the entry
+        const newRow = document.createElement("tr");
+        // Set the inner HTML of the new row with user input details
+        newRow.innerHTML = `
+            <td>${userName}</td>
+            <td>${userEmail}</td>
+            <td>${userPassword}</td>
+            <td>${userDOB}</td>
+            <td>${userTerms ? 'true' : 'false'}</td>
+        `;
+        entriesTableBody.appendChild(newRow); // Append the new row to the table body
+
+        // Save the new entry to localStorage
+        saveEntry({ name: userName, email: userEmail, password: userPassword, dob: userDOB, terms: userTerms });
+
+        // Reset the form fields after submission
+        registrationForm.reset();
+    });
+
+    // Load existing entries when the page loads
+    loadEntries();
+});
