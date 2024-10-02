@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <style>
+         /* Style input with invalid value in red */
+         input#name:invalid:focus {
+             border: 1px solid red; 
+         }
+         /* Global reset for margin, padding, and font style */
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+       
+        body{
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #437d94;
+        }
+        /* Container for the form */
+        .form-container {
+            width: 300px;
+            margin: 0 auto;
+        }
+       
+        table {  
+            font-family:sans-serif;
+            th, td {
+                padding:.25em .5em;
+                text-align:left;
+            }
+            td {
+                background-color:#eee;    
+            }
+            th {
+                background-color:rgb(0, 3, 5);
+                color:#fff;
+            }
+        }
+
+        
+        .zigzag {
+            border-collapse:separate;
+            border-spacing:.25em 1em;
+            tbody tr:nth-child(odd) {
+                transform:rotate(2deg);
+            }
+            thead tr,
+            tbody tr:nth-child(even) {
+                transform:rotate(-2deg);
+            }
+        }
+        /* Common styles for input and button */
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: whitesmoke;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Registration Form</h2>
+        <form id="userForm">
+            <!-- Name input -->
+            <label for="username">Name:</label>
+            <input type="text" id="username" required>
+
+            <!-- Email input -->
+            <label for="useremail">Email:</label>
+            <input type="email" id="useremail" required>
+
+            <!-- Password input -->
+            <label for="userpassword">Password:</label>
+            <input type="password" id="userpassword" required>
+
+            <!-- Date of birth input -->
+            <label for="userdob">Date of Birth:</label>
+            <input type="date" id="userdob" required>
+
+            <!-- Terms & Conditions checkbox -->
+            <label>
+                <input type="checkbox" id="termsCheckbox"> Accept Terms & Conditions
+            </label>
+
+            <!-- Submit button -->
+            <button type="submit">Submit</button>
+        </form>
+
+        <!-- Section for displaying saved entries -->
+        <h3>Entries</h3>
+        <table id="entriesTable" border="1">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Date of Birth</th>
+                    <th>Accepted Terms?</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+    </div>
+
+   <script src="index.js"></script>
+</body>
+</html>
